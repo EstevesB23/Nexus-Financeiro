@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body, #root {
+    height: 100%;
+    background: #0a0c12;
+    color: #edf0f7;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::-webkit-scrollbar        { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track  { background: transparent; }
+  ::-webkit-scrollbar-thumb  { background: #252d42; border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: #4e566e; }
+}
+
+@layer components {
+  /* ── Login background orbs ── */
+  .orb {
+    @apply absolute rounded-full pointer-events-none;
+    filter: blur(80px);
+    opacity: 0.18;
+    animation: orbFloat 8s ease-in-out infinite;
+  }
+
+  /* ── Glass card ── */
+  .glass {
+    background: rgba(16,19,28,0.85);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(37,45,66,0.9);
+    box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03);
+  }
+
+  /* ── Table styles ── */
+  .dtable { @apply w-full border-collapse; }
+  .dtable thead tr { @apply border-b border-line; background: #181c28; }
+  .dtable th {
+    @apply px-4 py-3 text-left text-tx-3 font-bold uppercase tracking-wider;
+    font-size: 0.7rem;
+    letter-spacing: 0.6px;
+    white-space: nowrap;
+  }
+  .dtable tbody tr {
+    @apply border-b border-line/60 transition-colors duration-100;
+  }
+  .dtable tbody tr:last-child { @apply border-b-0; }
+  .dtable tbody tr:hover { background: rgba(255,255,255,0.02); }
+  .dtable td { @apply px-4 py-3 text-sm text-tx-1 align-middle; }
+
+  /* ── Badges ── */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold whitespace-nowrap;
+  }
+  .badge::before {
+    content: '';
+    @apply w-1.5 h-1.5 rounded-full bg-current flex-shrink-0;
+  }
+  .badge-pago        { @apply bg-success/15 text-success; }
+  .badge-apagar      { @apply bg-brand/15 text-brand; }
+  .badge-atrasado    { @apply bg-danger/15 text-danger; }
+  .badge-datadif     { @apply bg-purple/15 text-purple; }
+  .badge-pagdia      { @apply bg-teal/15 text-teal; }
+  .badge-umdia       { @apply bg-warn/15 text-warn; }
+  .badge-acordo      { @apply bg-indigo/15 text-indigo; }
+  .badge-promo       { @apply bg-pink/15 text-pink; }
+  .badge-inadimp     { background: rgba(220,38,38,0.18); @apply text-red-600; }
+  .badge-protestado  { background: rgba(127,29,29,0.25); @apply text-red-300 border border-danger/30; }
+
+  /* ── Input base ── */
+  .inp {
+    @apply w-full px-3 py-2.5 rounded-sm text-sm text-tx-1 outline-none transition-all duration-150;
+    background: #181c28;
+    border: 1px solid #252d42;
+  }
+  .inp:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.08); }
+  .inp::placeholder { color: #2e3448; }
+
+  /* ── Select styled ── */
+  .sel {
+    @apply inp cursor-pointer appearance-none pr-7;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b93ab' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+
+  /* ── KPI card top bar ── */
+  .kpi-bar::after {
+    content: '';
+    @apply absolute top-0 left-0 right-0 h-0.5 rounded-t-md;
+  }
+}
+
+@keyframes orbFloat {
+  0%,100% { transform: scale(1) translateY(0); }
+  50%      { transform: scale(1.08) translateY(-20px); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: scale(0.96) translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #181c28 25%, #1f2433 50%, #181c28 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  @apply rounded;
+}
