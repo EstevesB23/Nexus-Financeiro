@@ -12,6 +12,12 @@ const runMigrations = (db) => {
   if (!cols.includes('banco')) {
     db.exec("ALTER TABLE clientes ADD COLUMN banco TEXT NOT NULL DEFAULT ''");
   }
+  if (!cols.includes('status_aprovacao')) {
+    db.exec("ALTER TABLE clientes ADD COLUMN status_aprovacao TEXT NOT NULL DEFAULT 'aprovado'");
+  }
+  if (!cols.includes('motivo_rejeicao')) {
+    db.exec('ALTER TABLE clientes ADD COLUMN motivo_rejeicao TEXT');
+  }
 };
 
 const getDB = () => {

@@ -28,21 +28,31 @@ router.get('/anos', (req, res) => {
 router.get('/proximas', (req, res) => {
   const db   = getDB();
   const hoje = new Date().toISOString().split('T')[0];
-  const fim  = (() => { const d = new Date(); d.setDate(d.getDate() + 7); return d.toISOString().split('T')[0]; })();
+  const dias = Math.min(Math.max(parseInt(req.query.dias || '7'), 1), 60);
+  const fim  = (() => { const d = new Date(); d.setDate(d.getDate() + dias); return d.toISOString().split('T')[0]; })();
+
+  const banco     = req.query.banco?.trim()     || '';
+  const consultor = req.query.consultor?.trim() || '';
+
+  const conds  = ['c.ativo = 1', 'p.data_parcela BETWEEN ? AND ?', "p.status NOT IN ('pago','pagamento_dia')"];
+  const params = [hoje, fim];
+
+  if (banco)     { conds.push('c.banco = ?');     params.push(banco); }
+  if (consultor) { conds.push('c.consultor = ?'); params.push(consultor); }
 
   const lista = db.prepare(`
     SELECT p.*,
       c.nome AS cliente_nome,
       c.estabelecimento,
+      c.banco,
+      c.consultor,
       c.qtd_parcelas AS total_parcelas
     FROM parcelas p
     JOIN clientes c ON c.id = p.cliente_id
-    WHERE c.ativo = 1
-      AND p.data_parcela BETWEEN ? AND ?
-      AND p.status NOT IN ('pago','pagamento_dia')
+    WHERE ${conds.join(' AND ')}
     ORDER BY p.data_parcela ASC
-    LIMIT 20
-  `).all(hoje, fim);
+    LIMIT 30
+  `).all(...params);
 
   res.json(lista);
 });
@@ -70,6 +80,7 @@ router.get('/', (req, res) => {
   if (ano)         { sql += ` AND strftime('%Y', p.data_parcela) = ?`; params.push(ano.toString()); }
   if (status && STATUS_VALIDOS.includes(status)) { sql += ` AND p.status = ?`; params.push(status); }
   if (q?.trim())   { const like = `%${q.trim()}%`; sql += ` AND (c.nome LIKE ? OR c.estabelecimento LIKE ?)`; params.push(like, like); }
+  if (req.query.cliente_id) { sql += ` AND p.cliente_id = ?`; params.push(req.query.cliente_id); }
 
   if (inadimplente === '1') sql += ` AND p.status IN ('atrasado','inadimplente','protestado')`;
   if (protestado   === '1') sql += ` AND p.status = 'protestado'`;
@@ -99,6 +110,25 @@ router.patch(
       SET status=?, observacao=?, pago_em=?, atualizado_em=?
       WHERE id=?
     `).run(status, observacao?.trim() || null, pagoEm, now, req.params.id);
+
+    if (info.changes === 0) return res.status(404).json({ erro: 'Parcela não encontrada.' });
+    res.json({ ok: true });
+  }
+);
+
+// ── PATCH /api/parcelas/:id/observacao ───────────────────────────────────
+// Permite: admin, cobranca, inadimplencia
+router.patch(
+  '/:id/observacao',
+  authorize('admin', 'cobranca', 'inadimplencia'),
+  (req, res) => {
+    const { observacao } = req.body;
+    const db  = getDB();
+    const now = new Date().toISOString().replace('T', ' ').split('.')[0];
+
+    const info = db.prepare(`
+      UPDATE parcelas SET observacao=?, atualizado_em=? WHERE id=?
+    `).run(observacao?.trim() || null, now, req.params.id);
 
     if (info.changes === 0) return res.status(404).json({ erro: 'Parcela não encontrada.' });
     res.json({ ok: true });

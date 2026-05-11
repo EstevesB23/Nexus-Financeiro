@@ -81,11 +81,12 @@ app.use(express.static(path.join(__dirname, 'public'), {
 }));
 
 // ── Rotas da API ──────────────────────────────────────────────────────────
-app.use('/api/auth',      loginLimiter, require('./routes/auth'));
-app.use('/api/clientes',  apiLimiter,   require('./routes/clientes'));
-app.use('/api/parcelas',  apiLimiter,   require('./routes/parcelas'));
-app.use('/api/dashboard', apiLimiter,   require('./routes/dashboard'));
-app.use('/api/parceiros', apiLimiter,   require('./routes/parceiros'));
+app.use('/api/auth',       loginLimiter, require('./routes/auth'));
+app.use('/api/clientes',   apiLimiter,   require('./routes/clientes'));
+app.use('/api/parcelas',   apiLimiter,   require('./routes/parcelas'));
+app.use('/api/dashboard',  apiLimiter,   require('./routes/dashboard'));
+app.use('/api/parceiros',  apiLimiter,   require('./routes/parceiros'));
+app.use('/api/aprovacoes', apiLimiter,   require('./routes/aprovacoes'));
 
 // Health check público
 app.get('/api/health', (req, res) => {

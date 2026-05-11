@@ -48,7 +48,7 @@ router.get('/', (req, res) => {
       SUM(CASE WHEN p.status IN ('pago','pagamento_dia') THEN 1 ELSE 0 END) AS parcelas_pagas
     FROM clientes c
     LEFT JOIN parcelas p ON p.cliente_id = c.id
-    WHERE c.ativo = 1
+    WHERE c.ativo = 1 AND c.status_aprovacao = 'aprovado'
   `;
   const params = [];
 
@@ -95,15 +95,14 @@ router.post('/', authorize('admin', 'cobranca', 'atendimento'), (req, res) => {
   db.prepare(`
     INSERT INTO clientes
       (id, nome, estabelecimento, cpf, cnpj, telefone, cep, referencias,
-       data_contrato, qtd_parcelas, valor_parcela, consultor, banco, criado_em, atualizado_em)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+       data_contrato, qtd_parcelas, valor_parcela, consultor, banco,
+       status_aprovacao, criado_em, atualizado_em)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
   `).run(id, nome.trim(), estabelecimento.trim(), cpf||'', cnpj||'',
-         telefone||'', cep||'', referencias||'', data_contrato, qtd, vlr, consultor||'', bnc, now, now);
+         telefone||'', cep||'', referencias||'', data_contrato, qtd, vlr, consultor||'', bnc,
+         'pendente', now, now);
 
-  const cliente = db.prepare('SELECT * FROM clientes WHERE id = ?').get(id);
-  gerarParcelas(db, cliente);
-
-  res.status(201).json({ ok: true, id });
+  res.status(201).json({ ok: true, id, pendente: true });
 });
 
 // ── PUT /api/clientes/:id ── (admin, cobranca, atendimento) ───────────────

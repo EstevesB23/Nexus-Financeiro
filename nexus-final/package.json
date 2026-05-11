@@ -10,7 +10,8 @@
     "start":  "node server.js",
     "dev":    "nodemon server.js",
     "setup":  "node db/migrate.js",
-    "import": "node scripts/import-planilha.js"
+    "import": "node scripts/import-planilha.js",
+    "importar": "node scripts/importar.js"
   },
   "dependencies": {
     "better-sqlite3": "^9.4.3",
